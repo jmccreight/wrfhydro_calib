@@ -263,7 +263,8 @@ while [ $rundone -eq 0 ]; do
          rundone=1
          exe="R CMD BATCH --no-restore --no-save sens_workflow_post.R"
          jobName=`date +%Y-%m-%d-%H-%M-%S`-$USER
-         bsub -Is -q geyser -W 2:00 -n 16 -P NRAL0017 -J jobName $exe  ; bkill -J jobName
+         bsub -Is -q geyser -W 2:00 -n 16 -P NRAL0017 -J $jobName $exe ; bkill -J $jobName
+         mv RUN.CALTMP* SENS_RUNS/.
          cd $startdir
          exit 0
       else

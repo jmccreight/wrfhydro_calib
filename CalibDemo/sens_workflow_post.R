@@ -75,7 +75,7 @@ for (cyclecount in 1:nrow(x_all)) {
    F_new <- objFn(chrt.d$q_cms, chrt.d$obs)
    statNse <- rwrfhydro::Nse(chrt.d$q_cms, chrt.d$obs)
    statNseLog <- rwrfhydro::NseLog(chrt.d$q_cms, chrt.d$obs)
-   statCor <- cor(chrt.d$q_cms, chrt.d$obs)
+   statCor <- cor(chrt.d$q_cms, chrt.d$obs, na.rm=TRUE)
    statRmse <- rwrfhydro::Rmse(chrt.d$q_cms, chrt.d$obs)
    statBias <- sum(chrt.d$q_cms - chrt.d$obs, na.rm=TRUE)/sum(chrt.d$obs, na.rm=TRUE) * 100
    statKge <- Kge(chrt.d$q_cms, chrt.d$obs)

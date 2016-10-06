@@ -208,7 +208,7 @@ if (cyclecount > 0) {
      tmpall <- plyr::join(tmpall, data.frame(tag=unique(tmpall$tag), id=seq(1:length(unique(tmpall$tag)))), by="tag")
 
      gg <- ggplot(data=tmpall, aes(x=tag, fill=tag)) + 
-        geom_rect(aes(x=tag, xmin=id-0.45, xmax=id+0.45, ymin=min, ymax=max)) + 
+        geom_rect(aes(x=tag, xmin=id-0.45, xmax=id+0.45, ymin=min, ymax=max, color=tag), alpha=0.8) + 
         facet_wrap(~variable, scales="free_y") +
         ggtitle(paste0("Metric Sensitivity: ", chrt.d.all$site_no[1])) +
         theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank())

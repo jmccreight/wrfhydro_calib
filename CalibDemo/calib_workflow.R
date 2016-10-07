@@ -32,6 +32,10 @@ if (file.exists("proj_data.Rdata")) {
    ReadNamelist("namelist.calib")
    cyclecount <- 0
 
+   # Setup plot directory
+   writePlotDir <- paste0(runDir, "/plots")
+   dir.create(writePlotDir)
+
    # Load obs so we have them for next iteration
    load(obsFile)
    obsDT$q_cms <- NULL
@@ -129,6 +133,13 @@ if (cyclecount > 0) {
 
    # Stop cluster
    if (parallelFlag) stopCluster(cl)
+
+   # Update plot
+   gg <- ggplot(data=x_archive, aes(x=id, y=obj)) + 
+              geom_point() + theme_bw() + 
+              labs(x="run", y="objective function")
+   ggsave(filename=paste0(writePlotDir, "/", siteId, "_calib_run_obj.png"),
+              plot=gg, units="in", width=6, height=5, dpi=300)
 
    # Archive output
    if (!archiveOutput) system(paste0("rm -r ", outPath), intern=FALSE)

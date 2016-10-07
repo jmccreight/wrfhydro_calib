@@ -33,6 +33,7 @@ if (file.exists("proj_data_SENS.Rdata")) {
 # Load obs so we have them for next iteration
 load(obsFile)
 obsDT$q_cms <- NULL
+obsDT <- obsDT[!is.na(obs),]
 
 # Find the index of the gage
 rtLink <- ReadRouteLink(rtlinkFile)
@@ -75,7 +76,7 @@ for (cyclecount in 1:nrow(x_all)) {
    F_new <- objFn(chrt.d$q_cms, chrt.d$obs)
    statNse <- rwrfhydro::Nse(chrt.d$q_cms, chrt.d$obs)
    statNseLog <- rwrfhydro::NseLog(chrt.d$q_cms, chrt.d$obs)
-   statCor <- cor(chrt.d$q_cms, chrt.d$obs, na.rm=TRUE)
+   statCor <- cor(chrt.d$q_cms, chrt.d$obs)
    statRmse <- rwrfhydro::Rmse(chrt.d$q_cms, chrt.d$obs)
    statBias <- sum(chrt.d$q_cms - chrt.d$obs, na.rm=TRUE)/sum(chrt.d$obs, na.rm=TRUE) * 100
    statKge <- Kge(chrt.d$q_cms, chrt.d$obs)

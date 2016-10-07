@@ -43,7 +43,7 @@ myPath <- "/glade/scratch/adugger/CONUS_CALIB/CalibDemo/RUN.TEMPLATE/DOMAIN/"
 	fullGwbuckFile <- "/glade/p/ral/RHAP/adugger/WH_REPO/DOMAINS/CONUS_IOC/GWBUCKPARM_OCONUS_2016_01_03_CALIB3.nc"
 
 	# Soil parameter file
-	fullSoilparmFile <- "/glade/p/ral/RHAP/adugger/WH_REPO/DOMAINS/CONUS_IOC/soil_properties_CONUS_v4_ter_rtg_CALIB3_nlcd11_SandDwsatFix.nc"
+	fullSoilparmFile <- "/glade/p/ral/RHAP/adugger/WH_REPO/DOMAINS/CONUS_IOC/soil_properties_CONUS_v4_ter_rtg_CALIB3_nlcd11_AllMBSoilParamFix.nc"
 
 	# Lake parameter file
 	fullLakeparmFile <- "/glade/p/ral/RHAP/adugger/WH_REPO/DOMAINS/CONUS_IOC/LAKEPARM_ks_scaled_max_el_Feb_12_2016_1d_WeirC_OrificeC_min_alt_1.0_WeirL_35.0_RELABEL_goodlakes1260.nc"

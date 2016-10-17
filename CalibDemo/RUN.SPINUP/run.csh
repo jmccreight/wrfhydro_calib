@@ -10,7 +10,7 @@
 #BSUB -o wrf%J.out                      # output filename
 #BSUB -e wrf%J.err                      # error filename
 #BSUB -W 2:00                           # wallclock time
-#BSUB -q regular                        # queue
+#BSUB -q premium                        # queue
 
 mpirun.lsf ./wrf_hydro.exe
 echo $?

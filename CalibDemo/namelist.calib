@@ -59,8 +59,8 @@ objFn <- function (m, o, w=0.5, p=1) {  # Negative weighted mean NSE and log NSE
 startDate <- as.POSIXct("2008-10-01", format="%Y-%m-%d", tz="UTC")
 
 # Archive model run output files?
-archiveOutput <- TRUE
+archiveOutput <- FALSE
 
 # Archive model run files?
-archiveRun <- TRUE
+archiveRun <- FALSE
 

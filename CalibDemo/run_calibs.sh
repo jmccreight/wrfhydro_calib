@@ -25,7 +25,7 @@ declare -a gw_abs_list=('Zmax' 'Expon')
 declare -a mptab_mult_list=('CWPVT' 'VCMX25' 'MP' 'HVT')
 declare -a mptab_abs_list=('MFSNO')
 
-pausetime='10s'
+pausetime='1m'
 waittime='1m'
 
 

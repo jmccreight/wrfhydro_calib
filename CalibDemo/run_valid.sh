@@ -12,7 +12,7 @@ echo $baserundir
 baserundir=`echo $baserundir | sed 's/\"//g'`
 echo $baserundir
 
-paramfile=`echo ${baserundir}/params_new.txt`
+paramfile=`echo ${baserundir}/params_best.txt`
 
 declare -a soilp_mult_list=('bexp' 'smcmax' 'dksat')
 declare -a soilp_abs_list=('slope' 'refkdt')
@@ -25,8 +25,8 @@ declare -a gw_abs_list=('Zmax' 'Expon')
 declare -a mptab_mult_list=('CWPVT' 'VCMX25' 'MP' 'HVT')
 declare -a mptab_abs_list=('MFSNO')
 
-pausetime='2m'
-waittime='2m'
+pausetime='1m'
+waittime='5m'
 
 
 #------ Local functions ------#
@@ -127,25 +127,14 @@ update_mp () {
 startdir=`pwd`
 cd $baserundir
 
-if [ ! -d "CALIB_RESULTS" ]; then
-   mkdir CALIB_RESULTS
-fi
-if [ ! -d "CALIB_RUNS" ]; then
-   mkdir CALIB_RUNS
-fi
+# Get best params
+echo "Calling R..."
+R CMD BATCH --no-save --no-restore valid_workflow_pre.R
 
-counter=1
+if [ ! -f ${paramfile} ]; then
+     echo "No parameter file found"
 
-while [ "${counter}" -gt "0" ]; do
-
-   echo "Calling R..."
-   R CMD BATCH --no-save --no-restore calib_workflow.R
-
-   if [ ! -f ${paramfile} ]; then
-     echo "DONE"
-     counter=0
-     break
-   fi
+else
 
    echo "Reading parameter set"
 
@@ -162,11 +151,17 @@ while [ "${counter}" -gt "0" ]; do
       fi
    done < $paramfile
 
-   runid=${varvals[0]}
-   echo "Starting run $runid"
+   ### VALIDATION RUN
 
-   cp -r RUN.TEMPLATE RUN.CALTMP
-   cd RUN.CALTMP
+   echo "Starting validation run"
+   now=$(date +"%T")
+
+   cp -r RUN.TEMPLATE RUN.VALID
+   cd RUN.VALID
+   #sed -i.bak "17s/.*/  KDAY = 2922   \!2007-10-01 - 2015-09-30/" namelist.hrldas
+   sed -i.bak "17s/.*/  KDAY = 3287   \!2007-10-01 - 2016-09-30/" namelist.hrldas
+   sed -i.bak "9s/.*/#BSUB -J valid_${now}      # job name/" run.csh
+
    for n in $(seq 1 $((varcnt))); do
          varnm=${varnames[$n]}
          varnm=`echo $varnm | sed -e 's/\"//g'`
@@ -253,13 +248,30 @@ while [ "${counter}" -gt "0" ]; do
       
    # Run
    bsub -K < run.csh &
+   cd ..
+
+   ### CONTROL RUN
+
+   echo "Starting control run"
+
+   cp -r RUN.TEMPLATE RUN.CONTROL
+   cd RUN.CONTROL
+   #sed -i.bak "17s/.*/  KDAY = 2922   \!2007-10-01 - 2015-09-30/" namelist.hrldas
+   sed -i.bak "17s/.*/  KDAY = 3287   \!2007-10-01 - 2016-09-30/" namelist.hrldas
+   sed -i.bak "9s/.*/#BSUB -J cont_${now}      # job name/" run.csh
+
+   # Run
+   bsub -K < run.csh &
+   cd ..
+
    wait
+
    rundone=0
    while [ $rundone -eq 0 ]; do
-      if [ -d "OUTPUT" ]; then
-         echo "Run complete!"
+      if [ -d "RUN.VALID/OUTPUT" ] && [ -d "RUN.CONTROL/OUTPUT" ]; then
+         echo "Validation and control runs complete!"
          sleep $pausetime
-         mv OUTPUT ../CALIB_RESULTS/OUTPUT${runid}
+         R CMD BATCH --no-save --no-restore valid_workflow_post.R
          rundone=1
       else
          echo "Waiting on run..."
@@ -267,12 +279,8 @@ while [ "${counter}" -gt "0" ]; do
       fi
    done
    cd ..
-   #cp -r RUN.CALTMP CALIB_RUNS/RUN.CALTMP${runid}
-   #rm -r RUN.CALTMP
-   counter=$((counter+1))
 
-done
-
+fi
 
 cd $startdir
 

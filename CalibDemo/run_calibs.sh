@@ -15,6 +15,7 @@ echo $baserundir
 paramfile=`echo ${baserundir}/params_new.txt`
 
 declare -a soilp_mult_list=('bexp' 'smcmax' 'dksat')
+#declare -a soilp_mult_list=('bexp' 'smcmax' 'dksat' 'CWPVT' 'VCMX25' 'MP' 'HVT' 'MFSNO')
 declare -a soilp_abs_list=('slope' 'refkdt')
 declare -a fulldom_mult_list=()
 declare -a fulldom_abs_list=('RETDEPRTFAC' 'LKSATFAC')

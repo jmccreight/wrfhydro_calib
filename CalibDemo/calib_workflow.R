@@ -1,3 +1,64 @@
+## JLM: dumping code to be added/edited for 2D processes at the top
+## gather all obs before hand
+
+############################################################################
+## dummy construction of observation list
+## may want to reduce the names in the list to YYYYMMDDHHMM ... though, maybe not if we ever
+## start doing calib with 2D fields from Hydro RTOUT file.
+o0 <- array(sqrt(1:25), dim=c(5,5))
+oList <-
+  list(
+       `2015-01-01_12:00:00`=
+       list( time = as.POSIXct('2015-01-01_12:00:00',
+                               format='%Y-%m-%d_%H:%M:%S', tz='UTC', origin=PosixOrigin()),
+            SNOWH = o0,
+            FSNO  = round(o0/max(o0)) ),
+       `2015-02-01_12:00:00`=
+       list( time = as.POSIXct('2015-02-01_12:00:00',
+                               format='%Y-%m-%d_%H:%M:%S', tz='UTC', origin=PosixOrigin()),
+            SNOWH = o0,
+            FSNO  = round(o0/max(o0)) )
+       )
+############################################################################
+
+## filter the entries by startDate before getting model files.
+
+# Reduce name times to the LDASOUT convention
+obsTimePatterns <- names(oList)
+obsTimePatterns <- gsub('(-|_| |:)', '' , obsTimePatterns)
+obsTimePatterns <- paste0('(',paste(obsTimePatterns, collapse='|'),')')
+## something like
+modelFiles <- list.files(outputPath, patt=obsTimePatterns, full=TRUE)
+
+GetLdasOut <- function(ff, vars) {
+  fileTime <- substr(basename(ff), 1, 12)
+  ldasData <- GetNcdfFile(ff, c('SNOWH','FSNO'), q=TRUE)
+  ldasData$time <- as.POSIXct(fileTime, format='%Y%m%d%H%M', tz='UTC', origin=PosixOrigin())
+}
+
+allLdasOut <- plyr::llply(modelFiles, GetLdasOut)
+         
+############################################################################
+## dummy construction of model data list.
+m0 <- array(1:25, dim=c(5,5))
+mList <-
+  list(
+       `2015-01-01_12:00:00`=
+       list( time  = as.POSIXct('2015-01-01_12:00:00',
+                                format='%Y-%m-%d_%H:%M:%S', tz='UTC', origin=PosixOrigin()),
+             SNOWH = m0,
+             FSNO  = round(m0/max(m0)) ),
+
+       `2015-02-01_12:00:00`=
+       list( time  = as.POSIXct('2015-02-01_12:00:00',
+                                format='%Y-%m-%d_%H:%M:%S', tz='UTC', origin=PosixOrigin()),
+             SNOWH = m0,
+             FSNO  = round(m0/max(m0)) )
+       )
+############################################################################
+
+#######################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
+
 .libPaths("/glade/u/home/adugger/system/R/Libraries/R3.2.2")
 library(rwrfhydro)
 library(data.table)

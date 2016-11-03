@@ -1,0 +1,80 @@
+#### Model Parameters ####
+
+# Model run directory
+runDir <- "/glade/scratch/jamesmcc/tuolumne.calibration/"
+
+# Route link file
+rtlinkFile <- paste0(runDir, "/RUN.TEMPLATE/DOMAIN/RouteLink.nc")
+
+
+#### DDS Parameters ####
+
+# Perturbation parameter (default=0.2)
+r <- 0.2
+
+# Number of iterations (default=1000)
+m <- 500
+
+# Parameter bounds 
+# Must create a data table called paramBnds with one row per parameter and columns labeled: 
+# "param" for parameter name, "ini" for initial value, "min" for minimum value, "max" for maximum value
+paramBnds <- read.table(paste0(runDir, "/param_bnds.txt"), header=TRUE, sep=" ", stringsAsFactors=FALSE) 
+
+
+#### Model Evaluation Parameters ####
+
+# Gage ID to extract from the model output and compare against the obs
+siteId <- "02245500"
+
+# R dataset containing observations
+# Must contain an object called obsDf containing columns:
+# "POSIXct" for POSIXct data, "obs" for streamflow data
+obsFile <- paste0(runDir, "/OBS/obsDaily.Rdata")
+
+# Objective function
+# Must contain a function to be minimized, with two arguments (in order): model, obs 
+objFn <- function (m, o, w=0.5, p=1) {  # Negative weighted mean NSE and log NSE
+    # NSE
+    err1 <- sum((m - o)^2, na.rm=T)
+    err2 <- sum((o - mean(o, na.rm=T))^2, na.rm=T)
+    nse <- 1 - (err1/err2)
+    # Ln NSE
+    lnm <- log(m + 1e-04)
+    lno <- log(o + 1e-04)
+    err1 <- sum((lnm - lno)^2, na.rm=T)
+    err2 <- sum((lno - mean(lno, na.rm=T))^2, na.rm=T)
+    lnnse <- 1 - (err1/err2)
+    # Weighted mean
+    res <- ((w^p) * (nse^p) + (w^p) * (lnnse^p))^(1/p)
+    0-res
+}
+#objFn <- function (m, o) {  # Negative NSE
+#    err1 <- sum((m - o)^2, na.rm=T)
+#    err2 <- sum((o - mean(o, na.rm=T))^2, na.rm=T)
+#    ns <- 1 - (err1/err2)
+#    0-ns
+#}
+
+
+ObjFunSpaceRmse <- function(m, o, var, missing=NA) {
+  ## treat NA?
+  rmse <- array(NA, dim=c(length(m),length(m[[1]][[var]])) ) 
+  theNames <- names(m)
+  for(tt in 1:length(m)) {
+    nn <- theNames[tt]
+    rmse[tt,] <- as.vector( m[[tt]]$SNOWH - o[[tt]]$SNOWH)
+  }
+  sqrt( mean( rmse^2, na.rm=FALSE ) )
+}
+
+obj <- ObjFunSpaceRmse(mList, oList)
+
+# Start date for evaluation period (e.g., after spinup period)
+startDate <- as.POSIXct("2008-10-01", format="%Y-%m-%d", tz="UTC")
+
+# Archive model run output files?
+archiveOutput <- FALSE
+
+# Archive model run files?
+archiveRun <- FALSE
+

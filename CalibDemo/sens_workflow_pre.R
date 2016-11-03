@@ -19,7 +19,10 @@ metrics <- c("obj", "nse", "nselog", "cor", "rmse", "bias", "kge", "fdc")
 #########################################################
 
 # First run so need to initialize
-ReadNamelist("namelist.calib")
+#ReadNamelist("namelist.calib")  ## JLM: this loads the obs file which seems unnecessary at this point.
+source("namelist.calib")
+
+
 cyclecount <- 0
 
 # Setup value lists from paramBnds
@@ -59,7 +62,11 @@ names(x_archive) <- c("id", xnames, "tag", "bound", metrics)
 
 # Output parameter set
 message("Output parameter set")
-x_all_out <- cbind(data.frame(id=seq(1:nrow(x_all))), x_all[,1:14])
+#x_all_out <- cbind(data.frame(id=seq(1:nrow(x_all))), x_all[,1:14])  ## 14? shoul d be dynamic
+## position is dangerous
+## the first column is an assumption, so is 1:14
+x_all_out <- cbind(data.frame(id=seq(1:nrow(x_all))), x_all)  ## 14? or explictly removing things
+
 write.table(x_all_out, file="params_new.txt", row.names=FALSE, sep=" ")
 
 # Save and exit
